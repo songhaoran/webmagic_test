@@ -17,23 +17,29 @@ public class WeixinArticlePageProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        if (page.getUrl().toString().contains("mp.weixin.qq.com/profile?src=")) {
-            String s = page.getHtml().toString();
-            s = s.substring(s.indexOf("msgList ="));
-            s = s.substring(9, s.indexOf("seajs.use(\"sougou/profile.js\");") - 3);
-            s = s.substring(0, s.lastIndexOf(";")).replaceAll("amp;", "");
-            Object read = JSONPath.read(s, "$..content_url");
-            if (read != null) {
-                List<String> list = (List<String>) read;
-                for (String url : list) {
-                    page.addTargetRequest("https://mp.weixin.qq.com" + url);
-                }
-            }
+        if (page.getUrl().toString().contains("http://weixin.sogou.com/weixin?type=1&s_from=input&query=")) {
+            String requestString = page.getHtml().xpath("//div[@class='txt-box']/p[@class='tit']/a[1]/@href").toString();
+            System.out.println(page.getHtml().toString());
+            page.addTargetRequest(requestString);
         } else {
-            page.putField("title", page.getHtml().xpath("//div[@id='img-content']/h2[@class='rich_media_title']/text()").get());
-            page.putField("date", page.getHtml().xpath("//div[@id='meta_content']/em/text()").get());
-            page.putField("subscriptionAccounts", page.getHtml().xpath("//div[@id='meta_content']/span[1]/text()").get());
-            page.putField("richMediaContent", page.getHtml().xpath("//div[@class='rich_media_content ']").get());
+            if (page.getUrl().toString().contains("mp.weixin.qq.com/profile?src=")) {
+                String s = page.getHtml().toString();
+                s = s.substring(s.indexOf("msgList ="));
+                s = s.substring(9, s.indexOf("seajs.use(\"sougou/profile.js\");") - 3);
+                s = s.substring(0, s.lastIndexOf(";")).replaceAll("amp;", "");
+                Object read = JSONPath.read(s, "$..content_url");
+                if (read != null) {
+                    List<String> list = (List<String>) read;
+                    for (String url : list) {
+                        page.addTargetRequest("https://mp.weixin.qq.com" + url);
+                    }
+                }
+            } else {
+                page.putField("title", page.getHtml().xpath("//div[@id='img-content']/h2[@class='rich_media_title']/text()").get());
+                page.putField("date", page.getHtml().xpath("//div[@id='meta_content']/em/text()").get());
+                page.putField("subscriptionAccounts", page.getHtml().xpath("//div[@id='meta_content']/span[1]/text()").get());
+                page.putField("richMediaContent", page.getHtml().xpath("//div[@class='rich_media_content ']").get());
+            }
         }
     }
 

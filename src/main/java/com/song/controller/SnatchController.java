@@ -4,6 +4,7 @@ import com.song.pageprocesser.SinaBlogPageProcessor;
 import com.song.pageprocesser.WeixinArticlePageProcessor;
 import com.song.pipeline.SinaBlogPipeline;
 import com.song.pipeline.WeixinArticlePipeline;
+import com.song.service.SnatchService;
 import com.song.utils.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import us.codecraft.webmagic.Spider;
 
+import javax.annotation.Resource;
+
 
 /**
  * Created by Song on 2018/2/27.
@@ -24,6 +27,8 @@ import us.codecraft.webmagic.Spider;
 @RequestMapping(produces = "application/json;charset=UTF-8")
 @Api(value = "santch", description = "抓取")
 public class SnatchController {
+    @Resource
+    public SnatchService snatchService;
 
     @ApiOperation("抓取新浪博客")
     @GetMapping(value = "/snatch/sina_blog")
@@ -36,13 +41,13 @@ public class SnatchController {
                     .run();
         } catch (Exception e) {
             log.error("", e);
-            return Response.failed();
+            return Response.success(false);
         }
-        return Response.success();
+        return Response.success(true);
     }
 
 
-    @ApiOperation("抓取微信公众号")
+    @ApiOperation("根据微信公众号文章列表链接抓取文章")
     @GetMapping(value = "/snatch/weixin")
     public Response<Boolean> weixinSnatch(@RequestParam(value = "url") String url) {
         try {
@@ -53,8 +58,14 @@ public class SnatchController {
                     .run();
         } catch (Exception e) {
             log.error("", e);
-            return Response.failed();
+            return Response.success(false);
         }
-        return Response.success();
+        return Response.success(true);
+    }
+
+    @ApiOperation("抓取指定微信公众号文章")
+    @GetMapping(value = "/snatch/weixin/officalAccount")
+    public Response<Boolean> officalAccountSnatch(@RequestParam(value = "offical_account_name") String officalAccountName) {
+        return snatchService.snatchWeixinArticle(officalAccountName);
     }
 }

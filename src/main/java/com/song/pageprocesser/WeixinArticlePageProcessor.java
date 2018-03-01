@@ -38,7 +38,7 @@ public class WeixinArticlePageProcessor implements PageProcessor {
                 page.putField("title", page.getHtml().xpath("//div[@id='img-content']/h2[@class='rich_media_title']/text()").get());
                 page.putField("date", page.getHtml().xpath("//div[@id='meta_content']/em/text()").get());
                 page.putField("subscriptionAccounts", page.getHtml().xpath("//div[@id='meta_content']/span[1]/text()").get());
-                page.putField("richMediaContent", page.getHtml().xpath("//div[@class='rich_media_content ']").get());
+                page.putField("richMediaContent", page.getHtml().xpath("//div[@class='rich_media_content ']").get().replaceAll("data-src","src"));
             }
         }
     }
